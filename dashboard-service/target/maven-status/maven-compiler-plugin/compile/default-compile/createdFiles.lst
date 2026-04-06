@@ -1,0 +1,15 @@
+com\project\dashboardservice\dto\IncomeDto.class
+com\project\dashboardservice\dto\CategoryDto.class
+com\project\dashboardservice\service\DashboardService.class
+com\project\dashboardservice\dto\RecentTransactionDTO.class
+com\project\dashboardservice\dto\RecentTransactionDTO$RecentTransactionDTOBuilder.class
+com\project\dashboardservice\dto\ExpenseDto$ExpenseDtoBuilder.class
+com\project\dashboardservice\dto\IncomeDto$IncomeDtoBuilder.class
+com\project\dashboardservice\controller\FilterController.class
+com\project\dashboardservice\dto\FilterDTO.class
+com\project\dashboardservice\client\ExpenseClient.class
+com\project\dashboardservice\dto\ExpenseDto.class
+com\project\dashboardservice\client\IncomeClient.class
+com\project\dashboardservice\controller\DashboardController.class
+com\project\dashboardservice\DashboardServiceApplication.class
+com\project\dashboardservice\service\FilterService.class
