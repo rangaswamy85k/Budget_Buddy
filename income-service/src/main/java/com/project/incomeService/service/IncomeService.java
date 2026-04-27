@@ -8,6 +8,7 @@ import com.project.incomeService.repository.IncomeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -21,13 +22,19 @@ public class IncomeService {
     private final IncomeRepository repository;
     private final CategoryClient categoryClient;
 
+    @CircuitBreaker(name = "incomeService", fallbackMethod = "createIncomeFallback")
     public Income createIncome(IncomeDto dto, Long userId) {
-        // Validate Category (Temporarily commented for independent testing, alike expense service)
-        // try {
-        //     categoryClient.getCategoryById(dto.getCategoryId());
-        // } catch (Exception e) {
-        //      throw new RuntimeException("Category not found or invalid");
-        // }
+        // Validate Category 
+        try {
+            categoryClient.getCategoryById(dto.getCategoryId());
+        } catch (feign.FeignException e) {
+             if (e.status() == 404 || e.status() == 500) {
+                 throw new RuntimeException("Category not found or invalid: Invalid Category ID");
+             }
+             throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Category service error: " + e.getMessage(), e);
+        }
 
         Income income = Income.builder()
                 .name(dto.getName())
@@ -92,5 +99,16 @@ public class IncomeService {
                 .categoryId(income.getCategoryId())
                 .category(category)
                 .build();
+    }
+
+    public Income createIncomeFallback(IncomeDto dto, Long userId, Throwable t) {
+        Income income = Income.builder()
+                .name(dto.getName())
+                .amount(dto.getAmount())
+                .date(dto.getDate())
+                .categoryId(dto.getCategoryId())
+                .userId(userId)
+                .build();
+        return repository.save(income);
     }
 }

@@ -2,12 +2,21 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="config-server" />
+        <module name="category-service" />
+        <module name="dashboard-service" />
+        <module name="apiGateWay" />
+        <module name="expense-service" />
+        <module name="eurekaServer" />
+        <module name="notification-service" />
+        <module name="income-service" />
       </profile>
-      <profile name="Annotation profile for authService" enabled="true">
+      <profile name="Annotation profile for budget-buddy-parent" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -15,17 +24,24 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.34/lombok-1.18.34.jar" />
         </processorPath>
         <module name="authService" />
+        <module name="userService" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="apiGateWay" target="23" />
-      <module name="userService" target="23" />
+      <module name="budget-buddy-common" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="apiGateWay" options="-parameters" />
       <module name="authService" options="-parameters" />
+      <module name="category-service" options="-parameters" />
+      <module name="config-server" options="-parameters" />
+      <module name="dashboard-service" options="-parameters" />
+      <module name="eurekaServer" options="-parameters" />
+      <module name="expense-service" options="-parameters" />
+      <module name="income-service" options="-parameters" />
+      <module name="notification-service" options="-parameters" />
       <module name="userService" options="-parameters" />
     </option>
   </component>

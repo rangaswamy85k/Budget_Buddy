@@ -8,6 +8,7 @@ import com.project.expenseService.repository.ExpenseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -21,13 +22,14 @@ public class ExpenseService {
     private final ExpenseRepository repository;
     private final CategoryClient categoryClient;
 
+    @CircuitBreaker(name = "expenseService", fallbackMethod = "createExpenseFallback")
     public Expense createExpense(ExpenseDto dto, Long userId) {
-        // Validate Category (Temporarily commented for independent testing)
-        // try {
-        //     categoryClient.getCategoryById(dto.getCategoryId());
-        // } catch (Exception e) {
-        //      throw new RuntimeException("Category not found or invalid");
-        // }
+        // Validate Category 
+        try {
+            categoryClient.getCategoryById(dto.getCategoryId());
+        } catch (Exception e) {
+            throw new RuntimeException("Category not found or invalid: " + e.getMessage());
+        }
 
         Expense expense = Expense.builder()
                 .name(dto.getName())
@@ -80,7 +82,7 @@ public class ExpenseService {
     private ExpenseDto mapToDto(Expense expense) {
         CategoryDto category = null;
         try {
-             category = categoryClient.getCategoryById(expense.getCategoryId()).getBody();
+            category = categoryClient.getCategoryById(expense.getCategoryId()).getBody();
         } catch (Exception e) {
             // Log or ignore
         }
@@ -92,5 +94,16 @@ public class ExpenseService {
                 .categoryId(expense.getCategoryId())
                 .category(category)
                 .build();
+    }
+
+    public Expense createExpenseFallback(ExpenseDto dto, Long userId, Throwable t) {
+        Expense expense = Expense.builder()
+                .name(dto.getName())
+                .amount(dto.getAmount())
+                .date(dto.getDate())
+                .categoryId(dto.getCategoryId())
+                .userId(userId)
+                .build();
+        return repository.save(expense);
     }
 }

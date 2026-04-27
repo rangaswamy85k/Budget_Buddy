@@ -5,6 +5,7 @@ import com.project.dashboardservice.client.IncomeClient;
 import com.project.dashboardservice.dto.ExpenseDto;
 import com.project.dashboardservice.dto.IncomeDto;
 import com.project.dashboardservice.dto.RecentTransactionDTO;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ public class DashboardService {
     private final IncomeClient incomeClient;
     private final ExpenseClient expenseClient;
 
+    @CircuitBreaker(name = "dashboardService", fallbackMethod = "getDashboardDataFallback")
     public Map<String, Object> getDashboardData(String userIdStr) {
         Long userId = Long.parseLong(userIdStr);
 
@@ -74,5 +76,17 @@ public class DashboardService {
         returnValue.put("recentTransactions", recentTransactions);
 
         return returnValue;
+    }
+
+    public Map<String, Object> getDashboardDataFallback(String userIdStr, Throwable t) {
+        Map<String, Object> fallbackData = new LinkedHashMap<>();
+        fallbackData.put("totalBalance", BigDecimal.ZERO);
+        fallbackData.put("totalIncome", BigDecimal.ZERO);
+        fallbackData.put("totalExpense", BigDecimal.ZERO);
+        fallbackData.put("recent5Expenses", List.of());
+        fallbackData.put("recent5Incomes", List.of());
+        fallbackData.put("recentTransactions", List.of());
+        fallbackData.put("error", "One or more remote services are unavailable. Displaying default data: " + t.getMessage());
+        return fallbackData;
     }
 }

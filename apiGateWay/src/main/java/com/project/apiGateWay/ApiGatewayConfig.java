@@ -27,8 +27,8 @@ public class ApiGatewayConfig {
                 .route(r -> r.path("/incomes/**")
                 .uri("http://localhost:8085"))
                 .route(r -> r.path("/dashboard/**", "/filter/**")
-//                        .uri("http://localhost:8086"))
-                        .uri("lb://dashboard-service"))
+                        .uri("http://localhost:8086"))
+//                        .uri("lb://dashboard-service"))
                 .route(r -> r.path("/notifications/**")
                         .uri("http://localhost:8087"))
                 .build();

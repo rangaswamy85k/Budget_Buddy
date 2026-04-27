@@ -12,7 +12,9 @@ import com.project.authService.repository.VerificationTokenRepo;
 import com.project.authService.service.EmailService;
 import com.project.authService.service.MyUserDetails;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -41,6 +43,7 @@ public class AuthController {
     private final EmailService emailService;
 
     @PostMapping("/register")
+    @CircuitBreaker(name = "authService", fallbackMethod = "registerFallback")
     public ResponseEntity<?> register(@RequestBody User user) {
 
         // 1️⃣ Check email already exists
@@ -180,4 +183,11 @@ public class AuthController {
         return ResponseEntity.ok(dtos);
     }
 
+    public ResponseEntity<?> registerFallback(User user, Throwable t) {
+        // Find and delete the phantom/ghost user by email if it was created during this failed transaction
+        userRepository.findByEmail(user.getEmail()).ifPresent(userRepository::delete);
+        
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+            .body("Registration temporarily unavailable due to downstream service outage. Please try again later. Error: " + t.getMessage());
+    }
 }

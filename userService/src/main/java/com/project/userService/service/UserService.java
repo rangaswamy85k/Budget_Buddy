@@ -27,7 +27,7 @@ public class UserService {
     }
 
     public Profile getByUserId(Long id) {
-        return repo.findById(id)
+        return repo.findByUserId(id)
                 .orElseThrow(() -> new RuntimeException("Profile not found"));
     }
 

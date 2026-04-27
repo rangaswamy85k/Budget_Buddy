@@ -36,6 +36,6 @@ public class CategoryService {
     }
     
     public Category getCategoryById(Long id) {
-        return repository.findById(id).orElseThrow(() -> new RuntimeException("Category not found"));
+        return repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Category not found"));
     }
 }

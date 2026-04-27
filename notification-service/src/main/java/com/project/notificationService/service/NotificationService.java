@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -27,6 +28,7 @@ public class NotificationService {
 
     @Scheduled(cron = "0 * * * * *", zone = "IST")
 //    @Scheduled(cron = "0 0 22 * * *", zone = "IST")
+    @CircuitBreaker(name = "notificationService", fallbackMethod = "fallbackSendDailyIncomeExpenseRemainder")
     public void sendDailyIncomeExpenseRemainder() {
         log.info("Job started: sendDailyIncomeExpenseRemainder()");
         List<UserDto> users = authClient.getAllUsers();
@@ -43,6 +45,7 @@ public class NotificationService {
     }
     @Scheduled(cron = "0 * * * * *", zone = "IST")
 //    @Scheduled(cron = "0 0 23 * * *", zone = "IST")
+    @CircuitBreaker(name = "notificationService", fallbackMethod = "fallbackSendDailyExpenseSummary")
     public void sendDailyExpenseSummary() {
         log.info("Job started: sendDailyExpenseSummary()");
         List<UserDto> users = authClient.getAllUsers();
@@ -83,5 +86,13 @@ public class NotificationService {
             }
         }
         log.info("Job Completed: sendDailyExpenseSummary()");
+    }
+
+    public void fallbackSendDailyIncomeExpenseRemainder(Throwable t) {
+        log.error("Scheduled job skipped (Daily Remainder): Downstream services unavailable - {}", t.getMessage());
+    }
+
+    public void fallbackSendDailyExpenseSummary(Throwable t) {
+        log.error("Scheduled job skipped (Daily Summary): Downstream services unavailable - {}", t.getMessage());
     }
 }

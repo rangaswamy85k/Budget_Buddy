@@ -15,6 +15,4 @@ public interface UserClient {
     @PostMapping("/activate")
     public ResponseEntity<String> activateProfile(@RequestBody UserDto userDto);
 
-
-
 }
